@@ -405,6 +405,7 @@ end)
 ## Preemtive FAQ
 
 > How many tokens does eggs use?
+
 The library weights around 569 tokens. It has no comments and very few blank lines, but it could be minimized. If you are already using `oadd` in your project you could also remove the internal `oadd` implementation and replace it on the `mkid` function in order to save some tokens.
 
 > How does it work?
