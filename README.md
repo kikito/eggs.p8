@@ -13,7 +13,7 @@ This library has 3 main concepts: entities, tags and systems.
 
 ## Quick "Eggsample"
 
-```
+``` lua
 #include eggs.lua
 
 local world,redmovesright,bluemovesleft,draw
@@ -55,11 +55,16 @@ function _draw()
 end
 ```
 
+Please see the following cardrige ([source code](https://github.com/kikito/eggs.p8/blob/main/test_eggs.lua)) for a more advance example: 
+
+[![eggs](https://raw.githubusercontent.com/kikito/eggs.p8/refs/heads/main/test_eggs.p8.png)](https://www.lexaloffle.com/bbs/cart_info.php?cid=test_eggs-0)
+
+
 ## API
 
 ### Creating a world
 
-```
+``` lua
 local world = eggs()
 ```
 
@@ -68,7 +73,7 @@ The `eggs` function takes no arguments and returns a new world object. You can c
 
 ### Adding entities to the world
 
-```
+``` lua
 local entity = world.ent(tags, obj)
 ```
 
@@ -85,7 +90,7 @@ Adds an entity to the world. Entities will be filtered by systems based on their
 
 #### Example
 
-```
+``` lua
 local player = world.ent("player,movable,solid", {x=0,y=0})
 ```
 
@@ -98,7 +103,7 @@ local player = world.ent("player,movable,solid", {x=0,y=0})
 
 ### Adding systems to the world
 
-```
+``` lua
 local system = world.sys(tags, fn)
 ```
 
@@ -115,7 +120,7 @@ Adds a system to the world. The system needs to be invoked (usually from `_updat
 
 #### Example
 
-```
+``` lua
 -- definition (usually in _init):
 grow_old = world.sys("living", function(e)
   e.age = e.age + 1
@@ -129,7 +134,7 @@ grow_old()
 
 It is not possible to remove systems from the world once they have been added. If you need to deactivate a system, use an `if` to not call it:
 
-```
+``` lua
 if some_condition then
   grow_old()
 end
@@ -137,7 +142,7 @@ end
 
 If you need to do some work before or after the system runs, you can wrap it in another function:
 
-```
+``` lua
 -- definition
 local grow_old_sys = world.sys("living", function(e)
   e.age = e.age + 1
@@ -157,7 +162,7 @@ The order in which systems process entities is undefined. If you need to process
 
 Here's how it looks like to collect entities in a sorted array and then process them in order:
 
-```
+``` lua
 -- definitions
 
 -- given two entities, determine which one goes first by looking at their y coordinate
@@ -185,7 +190,7 @@ draw_entities()
 
 A simpler, probably faster but less flexible way is to have the entities tagged in a way that makes it possible to process them in groups. The following example will draw everything that is tagged "background" first, then everything tagged "middleground", and finally everything tagged "foreground":
 
-```
+``` lua
 --- definitions
 local function draw_entity(e)
   spr(e.spr,e.x,e.y)
@@ -207,7 +212,7 @@ draw_all()
 
 ### Removing entities from the world
 
-```
+``` lua
 world.del(entity)
 ```
 
@@ -219,7 +224,7 @@ Removes the given entity from the world. It will no longer be processed by syste
 
 #### Example
 
-```
+``` lua
 world.del(killed_enemy)
 ```
 
@@ -227,7 +232,7 @@ world.del(killed_enemy)
 
 The most usual place when one will want to remove an entity is from inside a system. This is is ok:
 
-```
+``` lua
 -- Definitions
 grow_older = world.sys("living", function(e)
   e.age = e.age + 1
@@ -248,7 +253,7 @@ Removing entities from the world is done in a safe and efficient way, but it inv
 
 ### Adding additional tags to an entity
 
-```
+``` lua
 world.tag(entity, tags)
 ```
 
@@ -265,7 +270,7 @@ Nothing
 
 #### Example
 
-```
+``` lua
 world.tag(player, "invincible")
 ```
 
@@ -278,7 +283,8 @@ You can use the `world.msk` method to check if an entity already has a tag befor
 Given that `world.tag` is expensive, you should avoid using it on systems that will parse a big number of entities.
 
 Example of bad usage:
-```
+
+``` lua
 local retag_all_entities = world.sys("", function(e)
   if some_condition then
     world.tag(e, "some_new_tag")
@@ -287,21 +293,24 @@ local retag_all_entities = world.sys("", function(e)
   end
 end)
 ```
+
 This is a system that will parse all entities and will *always* change their tags (both sides of the `if` call `world.tag`. It will be very slow and inefficient.
 
 Example of a good usage:
-```
+
+``` lua
 local kill_close_enemies = world.sys("enemy,close", function()
   if enemy.hp <= 0 then
     world.tag(enemy, "dead")
   end
 end)
 ```
+
 This is better because it will only parse over entities that are tagged both "enemy" and "close", which should be a smaller set than all entities. Also, it will only call `world.tag` on some of them (those that are close and have no hp left).
 
 This can be further optimized by using  `world.msk` to check if an entity has a tag before calling `world.tag` (see the notes section in `world.msk` below)
 
-```
+``` lua
 local kill_close_enemies = world.sys("enemy,close", function()
   if enemy.hp <= 0 then
     local msk = world.msk(enemy)
@@ -314,7 +323,7 @@ end)
 
 ### Removing tags from an entity
 
-```
+``` lua
 world.unt(entity, tags)
 ```
 
@@ -331,7 +340,7 @@ Nothing
 
 #### Example
 
-```
+``` lua
 world.unt(player, "invincible")
 ```
 
@@ -341,7 +350,7 @@ Attempting to remove a tag that the entity does not have will be ignored (no err
 * Try to modify few entities at a time by using it on systems that filter entities by tags and ten only remove tags from some of them
 * Use `world.msk` to check if an entity has a tag before attempting to remove it.
 
-```
+``` lua
 local reanimate_close_dead_enemies = world.sys("enemy,close,dead", function()
   local msk = world.msk(enemy)
   if not msk.undead then
@@ -352,7 +361,7 @@ end)
 
 ### Get all the tags of an entity
 
-```
+``` lua
 local msk = world.msk(entity)
 ```
 
@@ -368,7 +377,7 @@ Returns a table with all the tags of an entity as keys.
 
 #### Example
 
-```
+``` lua
 local msk = world.msk(player)
 ```
 
@@ -378,7 +387,7 @@ local msk = world.msk(player)
 
 In general you should not need to use `world.msk` except for the case where checking that the entity already has (or does not have) a tag before calling `world.tag` or `world.unt`, as explained in the notes sections of those methods. In any other case, if you need to do something like this:
 
-```
+``` lua
 local msk = world.msk(player)
 if msk.invincible then
   .. do something special
@@ -387,7 +396,7 @@ end
 
 That is probably a system hiding inside your code. There is probably a way to rewrite it like this:
 
-```
+``` lua
 local invincible_system = world.sys("invincible", function(e)
   .. do something with e, which now can be any entity tagged invincible, not just `player`
 end)
@@ -412,7 +421,7 @@ Each time an entity's tags are modified, it will be removed from its current col
 
 That was my first idea. Tags used to look like this:
 
-```
+``` lua
 local pos,vel,spr=1,1<<1,1<<2
 
 ...
