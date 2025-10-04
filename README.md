@@ -7,9 +7,11 @@ A pseudo-[ECS](https://en.wikipedia.org/wiki/Entity_component_system) library fo
 
 This library has 3 main concepts: entities, tags and systems.
 
-* Entities are Lua tables with zero or more tags associated to them.
+* Entities are Lua tables with zero or more tags associated to them. They represent your game objects. They contain data (like coordinates, health, etc) but no behavior (no functions)
 * Tags are just strings.
-* Systems are functions that operate on entities with specific tags.
+* Systems are lua functions that operate on entities with specific tags.
+
+That's the gist of it. On a pure ECS system you would have entities built of "Components", with the systems acting on the components themselves instead of on the entities. I found that approach didn't "go well" with Lua so I tried to do 2/3rds of it instead, cutting components almost completely until only the tags survived.
 
 ## Quick "Eggsample"
 
