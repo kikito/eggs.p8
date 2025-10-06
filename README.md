@@ -434,7 +434,7 @@ move = world.system(pos|vel, function(e)
 end)
 ```
 
-But unfortunately PICO-8 has [a 32 bit number format](https://pico-8.fandom.com/wiki/Math) with (16 for the integer part, 16 for the fractional part). So if I went that route my library would be limited to 32 tags at maximum. On my test_eggs example, which is very simple, I already used 10. I realized very quickly that any videogame that was even only slightly complex would need more than 32. So the advantages of using binary started being less interesting - I would have to implement "bitmask" objects, grouping several numbers together, and using tables with metatables for the bitwise operations and ... well I stopped there.
+But unfortunately PICO-8 has [a 32 bit number format](https://pico-8.fandom.com/wiki/Math). So if I went that route my library would be limited to 32 tags at maximum. On my test_eggs example, which is very simple, I already used 10. I realized very quickly that any videogame that was even only slightly complex would need more than 32. So the advantages of using binary started being less interesting - I would have to implement "bitmask" objects, grouping several numbers together, and using tables with metatables for the bitwise operations and ... well I stopped there.
 
 PICO-8 already has a built-in `split` function, so strings are more economical in terms of tokens. The price is performance. Strings need to be split and sorted in order to be used as ids; hence all of the warnings about not using `world.tag` and `world.unt` in excess.
 

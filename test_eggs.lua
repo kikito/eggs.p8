@@ -51,7 +51,7 @@ function _init()
     local age = age or 1+flr(rnd(120))
     local p = phaseages[age]
     local s = p + (g == "m" and 4 or 0)
-    return world.ent("pos,sprite,age,phase,genre,alive", {
+    return world.ent("chicken", {
       g = g,
       x = x or rnd(120),
       y = y or rnd(120),
@@ -64,7 +64,7 @@ function _init()
   end
 
   beast = function()
-    return world.ent("pos,vel,sprite", {
+    return world.ent("beast", {
       x = rnd(120),
       y = rnd(120),
       vx = 0.5 + rnd(0.5),
@@ -73,12 +73,12 @@ function _init()
     })
   end
 
-  tick = world.sys("age", function(e)
+  tick = world.sys("chicken", function(e)
     e.age += 1
   end)
 
   -- change phase according to age, add/remove tags in some phase changes
-  grow = world.sys("age,alive,phase,genre,sprite", function(e)
+  grow = world.sys("chicken", function(e)
     local np = assert(phaseages[e.age], e.age)
     if np == e.p then return end
     e.p = np
@@ -94,22 +94,6 @@ function _init()
     end
   end)
 
-  -- any chickens that are alive and close to the beast are marked as prey
-  scan = world.sys("alive,pos", function(e)
-    local x0,y0=thebeast.x+4,thebeast.y+4
-    local x1,y1=e.x+4,e.y+4
-    local dx,dy=x0-x1,y0-y1
-    -- calling tag and unt is expensive, the msk variable allows skipping it when not necessary
-    local msk=world.msk(e)
-    if dx*dx+dy*dy<256 then
-      if not msk.prey then
-       world.tag(e,"prey")
-      end
-    elseif msk.prey then
-      world.unt(e,"prey")
-    end
-  end)
-
   local adhd = { -- velocity variance per phase
     0,   -- egg,
     0.1, -- child,
@@ -118,14 +102,16 @@ function _init()
     0,   -- corpse
   }
   -- move around randomly
-  wander = world.sys("vel,genre,phase", function(e)
+  wander = world.sys("chicken", function(e)
+    if e.p == 1 or e.p == 5 then return end
     local v = adhd[e.p] + (e.g == "m" and 1 or 0) -- males are more hyperactive
     e.vx = e.vx+rnd(2*v)-v
     e.vy = e.vy+rnd(2*v)-v
   end)
 
   -- flee from the beast when it is preyby
-  flee = world.sys("prey,pos,vel", function(e)
+  flee = world.sys("chicken", function(e)
+    if e.p == 1 or e.p == 5 then return end
     local x0,y0=thebeast.x+4,thebeast.y+4
     local x1,y1=e.x+4,e.y+4
     local dx,dy=x0-x1,y0-y1
@@ -134,7 +120,8 @@ function _init()
   end)
 
   -- update position according to velocity, bouncing on walls and limiting max speed
-  move = world.sys("pos,vel", function(e)
+  move = world.sys("chicken,beast", function(e)
+    if e.p == 1 or e.p == 5 then return end
     local x, vx = e.x, e.vx
     vx = x < 0 and abs(vx) or x > 120 and -abs(vx) or vx
     e.vx = mid(-2,vx,2)
@@ -147,7 +134,7 @@ function _init()
   end)
 
   -- kill prey by colliding with them
-  hunt = world.sys("prey,pos", function(e)
+  hunt = world.sys("chicken", function(e)
     local x0,y0=thebeast.x+4,thebeast.y+4
     local x1,y1=e.x+4,e.y+6
     local dx,dy=x0-x1,y0-y1
@@ -156,13 +143,13 @@ function _init()
     end
   end)
 
-  lay = world.sys("laying,pos", function(e)
-    if rnd() > .99 then
+  lay = world.sys("chicken", function(e)
+    if e.p == 4 and e.g == "f" and rnd() > .99 then
       chick(nil, e.x, e.y)
     end
   end)
 
-  vanish = world.sys("dead", function(e)
+  vanish = world.sys("chicken", function(e)
     if e.age >= maxage then
       world.del(e) -- remove entity from the world
     end
@@ -190,8 +177,8 @@ function _init()
     --end
   end
 
-  local draw_dead = world.sys("pos,sprite,dead", draw_e)
-  local draw_alive = world.sys("pos,sprite,alive", draw_e)
+  local draw_dead = world.sys("beast", draw_e)
+  local draw_alive = world.sys("chicken", draw_e)
 
   draw = function()
     draw_dead()
