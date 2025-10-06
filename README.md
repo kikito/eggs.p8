@@ -57,7 +57,7 @@ function _draw()
 end
 ```
 
-Please see the following cardrige ([source code](https://github.com/kikito/eggs.p8/blob/main/test_eggs.lua)) for a more advance example: 
+Please see the following cardridge ([source code](https://github.com/kikito/eggs.p8/blob/main/test_eggs.lua)) for a more advance example: 
 
 [![eggs](https://raw.githubusercontent.com/kikito/eggs.p8/refs/heads/main/test_eggs.p8.png)](https://www.lexaloffle.com/bbs/cart_info.php?cid=test_eggs-0)
 
