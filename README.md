@@ -301,7 +301,7 @@ This is a system that will parse all entities and will *always* change their tag
 Example of a good usage:
 
 ``` lua
-local kill_close_enemies = world.sys("enemy,close", function()
+local kill_close_enemies = world.sys("enemy,close", function(enemy)
   if enemy.hp <= 0 then
     world.tag(enemy, "dead")
   end
@@ -313,7 +313,7 @@ This is better because it will only parse over entities that are tagged both "en
 This can be further optimized by using  `world.msk` to check if an entity has a tag before calling `world.tag` (see the notes section in `world.msk` below)
 
 ``` lua
-local kill_close_enemies = world.sys("enemy,close", function()
+local kill_close_enemies = world.sys("enemy,close", function(enemy)
   if enemy.hp <= 0 then
     local msk = world.msk(enemy)
     if not msk.dead then
@@ -353,7 +353,7 @@ Attempting to remove a tag that the entity does not have will be ignored (no err
 * Use `world.msk` to check if an entity has a tag before attempting to remove it.
 
 ``` lua
-local reanimate_close_dead_enemies = world.sys("enemy,close,dead", function()
+local reanimate_close_dead_enemies = world.sys("enemy,close,dead", function(enemy)
   local msk = world.msk(enemy)
   if not msk.undead then
     world.unt(enemy, "undead")
