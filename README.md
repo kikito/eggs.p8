@@ -2,6 +2,19 @@
 
 A pseudo-[ECS](https://en.wikipedia.org/wiki/Entity_component_system) library for [PICO-8](https://www.lexaloffle.com/pico-8.php).
 
+## Table of contents
+
+* [Core concepts](#core-concepts)
+* [Quick "Eggsample"](#quick--eggsample-)
+* [API](#api)
+  * [Creating a world](#creating-a-world)
+  * [Adding entities to the world](#adding-entities-to-the-world)
+  * [Adding systems to the world](#adding-systems-to-the-world)
+  * [Removing entities from the world](#removing-entities-from-the-world)
+  * [Adding additional tags to an entity](#adding-additional-tags-to-an-entity)
+  * [Removing tags from an entity](#removing-tags-from-an-entity)
+  * [Get all the tags of an entity](#get-all-the-tags-of-an-entity)
+* [Preemtive FAQ](#preemtive-faq)
 
 ## Core concepts
 
